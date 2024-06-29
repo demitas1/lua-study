@@ -1,7 +1,6 @@
-local json = require("cjson")
 
 
-Layer = {}
+local Layer = {}
 Layer.__index = Layer
 
 function Layer:new()
@@ -13,7 +12,7 @@ function Layer:new()
     instance.id = 0
     instance.name = ""
     instance.opacity = 1
-    instance.type = ""
+    instance._type = ""
     instance.visible = true
     instance.width = 0
     instance.x = 0
@@ -29,7 +28,7 @@ function Layer:readfrom(layerData)
     self.id = layerData.id
     self.name = layerData.name
     self.opacity = layerData.opacity
-    self.type = layerData.type
+    self._type = layerData.type
     self.visible = layerData.visible
     self.width = layerData.width
     self.x = layerData.x
@@ -39,13 +38,31 @@ end
 function Layer:printInfo()
     print("Layer ID: " .. self.id)
     print("Name: " .. self.name)
-    print("Type: " .. self.type)
+    print("Type: " .. self._type)
     print("Width: " .. self.width)
     print("Height: " .. self.height)
 end
 
+function Layer:toDict()
+    local data = {
+        compression = self.compression,
+        data = self.data,
+        encoding = self.encoding,
+        height = self.height,
+        id = self.id,
+        name = self.name,
+        opacity = self.opacity,
+        type = self._type,
+        visible = self.visible,
+        width = self.width,
+        x = self.x,
+        y = self.y,
+    }
+    return data
+end
 
-Tile = {}
+
+local Tile = {}
 Tile.__index = Tile
 
 function Tile:new(id)
@@ -58,8 +75,15 @@ function Tile:printInfo()
     print("Tile ID: " .. self.id)
 end
 
+function Tile:toDict()
+    local data = {
+        id = self.id
+    }
+    return data
+end
 
-Tileset = {}
+
+local Tileset = {}
 Tileset.__index = Tileset
 
 function Tileset:new()
@@ -112,7 +136,33 @@ function Tileset:printInfo()
 end
 
 
-MapData = {}
+-- Method to return the JSON representation of a Tileset instance
+function Tileset:toDict()
+    local tilesData = {}
+    for _, tile in ipairs(self.tiles) do
+        table.insert(tilesData, tile:toDict())
+    end
+
+    local data = {
+        columns = self.columns,
+        firstgid = self.firstgid,
+        image = self.image,
+        imageheight = self.imageheight,
+        imagewidth = self.imagewidth,
+        margin = self.margin,
+        name = self.name,
+        spacing = self.spacing,
+        tilecount = self.tilecount,
+        tileheight = self.tileheight,
+        tiles = tilesData,
+        tilewidth = self.tilewidth
+    }
+
+    return data
+end
+
+
+local MapData = {}
 MapData.__index = MapData
 
 function MapData:new()
@@ -129,7 +179,7 @@ function MapData:new()
     instance.tileheight = 0
     instance.tilesets = {}
     instance.tilewidth = 0
-    instance.type = ""
+    instance._type = ""
     instance.version = ""
     instance.width = 0
     return instance
@@ -160,7 +210,7 @@ function MapData:readfrom(mapData)
         self:addTileset(tileset)
     end
     self.tilewidth = mapData.tilewidth
-    self.type = mapData.type
+    self._type = mapData.type
     self.version = mapData.version
     self.width = mapData.width
 end
@@ -174,7 +224,7 @@ function MapData:addTileset(tileset)
 end
 
 function MapData:printInfo()
-    print("Map Type: " .. self.type)
+    print("Map Type: " .. self._type)
     print("Version: " .. self.version)
     print("Width: " .. self.width)
     print("Height: " .. self.height)
@@ -186,3 +236,43 @@ function MapData:printInfo()
     end
 end
 
+function MapData:toDict()
+    local layerData = {}
+    for _, layer in ipairs(self.layers) do
+        table.insert(layerData, layer:toDict())
+    end
+
+    local tilesetData = {}
+    for _, tileset in ipairs(self.tilesets) do
+        table.insert(tilesetData, tileset:toDict())
+    end
+
+    local data = {
+        compressionlevel = self.compressionlevel,
+        height = self.height,
+        infinite = self.infinite,
+        layers = layerData,
+        nextlayerid = self.nextlayerid,
+        nextobjectid = self.nextobjectid,
+        orientation = self.orientation,
+        renderorder = self.renderorder,
+        tiledversion = self.tiledversion,
+        tileheight = self.tileheight,
+        tilesets = tilesetData,
+        tilewidth = self.tilewidth,
+        type = self._type,
+        version = self.version,
+        width = self.width,
+    }
+    return data
+end
+
+
+-- Define the module table to export
+local mapJson = {
+    Layer = Layer,
+    Tile = Tile,
+    Tileset = Tileset,
+    MapData = MapData,
+}
+return mapJson

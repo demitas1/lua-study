@@ -37,3 +37,22 @@ mapData:addTileset(tileset)
 
 -- Print map information
 mapData:printInfo()
+
+local data = {
+    name = "John Doe",
+    age = 30,
+    hobbies = { "reading", "swimming", "coding" }
+}
+
+-- Encode Lua table to JSON string
+local json_data = cjson.encode(mapData:toDict())
+
+-- Write JSON string to file
+local file = io.open("output.json", "w")
+if file then
+    file:write(json_data)
+    file:close()
+    print("Data successfully written to output.json")
+else
+    print("Failed to open file for writing")
+end
