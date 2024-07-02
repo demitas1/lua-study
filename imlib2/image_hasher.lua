@@ -4,7 +4,7 @@ local imlib2 = require("imlib2")
 
 
 -- Define the class
-ImageHasher = {}
+local ImageHasher = {}
 ImageHasher.__index = ImageHasher
 
 
@@ -35,10 +35,21 @@ end
 
 
 -- Public method to look up hash_table by cell_id
-function ImageHasher:lookup(cell_id)
+function ImageHasher:lookup(id)
     for _, entry in ipairs(self.hash_table) do
-        if entry.cell_id == cell_id then
-            return entry.cell_hash
+        if entry.cell_id == id then
+            return entry
+        end
+    end
+    return nil
+end
+
+
+-- Public method to look up hash_table by hash value
+function ImageHasher:lookup_by_hash(hash)
+    for _, entry in ipairs(self.hash_table) do
+        if entry.cell_hash == hash then
+            return entry
         end
     end
     return nil
@@ -91,3 +102,10 @@ function ImageHasher:_byte_array_to_hash(byte_array, hash_algorithm)
         return sha1.sha1(byte_array)
     end
 end
+
+
+-- Define the module table to export
+local image_hasher = {
+    ImageHasher = ImageHasher,
+}
+return image_hasher

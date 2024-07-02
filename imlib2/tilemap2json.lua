@@ -15,6 +15,20 @@ local function readJsonFile(filePath)
     return cjson.decode(content)
 end
 
+
+-- Write JSON string to file
+local function writeJsonFile(filePath, data)
+    local file = io.open(filePath, "w")
+    if file then
+        file:write(cjson.encode(data))
+        file:close()
+        print("Data successfully written to output.json")
+    else
+        print("Failed to open file for writing")
+    end
+end
+
+
 -- File path to the JSON data
 local filePath = "level1-working/map1.json"
 
@@ -45,14 +59,4 @@ local data = {
 }
 
 -- Encode Lua table to JSON string
-local json_data = cjson.encode(mapData:toDict())
-
--- Write JSON string to file
-local file = io.open("output.json", "w")
-if file then
-    file:write(json_data)
-    file:close()
-    print("Data successfully written to output.json")
-else
-    print("Failed to open file for writing")
-end
+writeJsonFile("output.json", mapData:toDict())
